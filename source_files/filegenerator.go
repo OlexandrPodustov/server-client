@@ -1,5 +1,4 @@
-//in order to match folder structure this file should be placed
-//into folder source_files
+//in order to match folder structure this file should be placed into folder source_files
 package main
 
 import (
@@ -56,9 +55,6 @@ func goThroughAllUrls(srcList []string) []string {
 }
 
 func populateFilesWithData(listGeneratedFiles, listUrls []string) error {
-	//some debugging info
-	//println("length of files", len(listGeneratedFiles), "capasity of files", cap(listGeneratedFiles))
-	//println("length of urls", len(listUrls), "capasity of files", cap(listUrls))
 	if len(listGeneratedFiles)*4 > len(listUrls) {
 		return errExceededAmountOfUrls
 	}
