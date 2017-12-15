@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"server-client/my_pool"
+	"server-client/pool"
 	"sync"
 	"testing"
 )
@@ -30,7 +30,7 @@ func makeRequest(client interface{}) {
 	}
 	println("Resp body: ", string(responseBody))
 }
-func getFromPoolAndMakeRequest(initialisedPool *my_pool.Pool) {
+func getFromPoolAndMakeRequest(initialisedPool *pool.Pool) {
 	clientFromPool, err := initialisedPool.Get()
 	defer initialisedPool.Put(clientFromPool)
 	if err != nil {

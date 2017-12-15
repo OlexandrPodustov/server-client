@@ -1,4 +1,4 @@
-package my_pool
+package pool
 
 import (
 	"errors"
@@ -12,6 +12,7 @@ var (
 )
 
 type Factory func() interface{}
+
 type Pool struct {
 	storage      chan interface{}
 	fact_in_pool Factory
