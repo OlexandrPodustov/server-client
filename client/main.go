@@ -1,12 +1,9 @@
 package client
 
 import (
-	"io"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"server-client/pool"
-	""
+
+	"../pool"
 )
 
 //func initFactory() func() interface{} {
@@ -24,28 +21,29 @@ func NewPool(capacity int, poolOfWhat interface{}) (*pool.Pool, error) {
 	fact := func() interface{} {
 		return poolOfWhat
 	}
-	pool, err := pool.NewPool(capacity, fact)
-	//pool, err := pool.NewPool(capacity, initFactory())
+	newPool, err := pool.NewPool(capacity, fact)
+	//newPool, err := newPool.NewPool(capacity, initFactory())
 	if err != nil {
 		log.Fatal(err)
 	}
-	return pool, nil
+	return newPool, nil
 }
 
-func makeRequest(client interface{}, urlIn, contentType string, body io.Reader) {
-	resp, err := client.(*http.Client).Post(urlIn, contentType, body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	ioutil.ReadAll(resp.Body)
-}
-func GetFromPoolAndMakeRequest(initialisedPool *pool.Pool, urlIn, contentType string, body io.Reader) {
+//func makePostRequest(client interface{}, urlIn, contentType string, body io.Reader) {
+//	resp, err := client.(*http.Client).Post(urlIn, contentType, body)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	defer resp.Body.Close()
+//	ioutil.ReadAll(resp.Body)
+//}
 
-	clientFromPool, err := initialisedPool.Get()
-	defer initialisedPool.Put(clientFromPool)
-	if err != nil {
-		log.Fatal(err)
-	}
-	makeRequest(clientFromPool, urlIn, contentType, body)
-}
+//func GetFromPoolAndMakeRequest(initialisedPool *pool.Pool, urlIn, contentType string, body io.Reader) {
+//
+//	clientFromPool, err := initialisedPool.Get()
+//	defer initialisedPool.Put(clientFromPool)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	makePostRequest(clientFromPool, urlIn, contentType, body)
+//}

@@ -4,19 +4,20 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"server-client/pool"
 	"sync"
 	"testing"
+
+	"../pool"
 )
 
 const (
-	poolCapacity int = 3
-	queueSize    int = 8000
+	poolCapacity = 3
+	queueSize    = 8000
 )
 
 var poolOfWhat = &http.Client{}
 
-func makeRequest(client interface{}) {
+func makeGetRequest(client interface{}) {
 	resp, err := client.(*http.Client).Get("http://127.0.0.1:8082/publish")
 	if err != nil {
 		log.Fatal(err)
@@ -36,11 +37,11 @@ func getFromPoolAndMakeRequest(initialisedPool *pool.Pool) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	makeRequest(clientFromPool)
+	makeGetRequest(clientFromPool)
 }
 
 func TestPool(t *testing.T) {
-	pool, err := NewPool(poolCapacity, poolOfWhat)
+	newPool, err := NewPool(poolCapacity, poolOfWhat)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +50,7 @@ func TestPool(t *testing.T) {
 		waitGroupTesting.Add(1)
 		go func() {
 			defer waitGroupTesting.Done()
-			getFromPoolAndMakeRequest(pool)
+			getFromPoolAndMakeRequest(newPool)
 		}()
 	}
 	waitGroupTesting.Wait()
@@ -57,7 +58,7 @@ func TestPool(t *testing.T) {
 }
 
 func BenchmarkPool(b *testing.B) {
-	pool, err := NewPool(poolCapacity, poolOfWhat)
+	newPool, err := NewPool(poolCapacity, poolOfWhat)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +69,7 @@ func BenchmarkPool(b *testing.B) {
 		waitGroupBench.Add(1)
 		go func() {
 			defer waitGroupBench.Done()
-			getFromPoolAndMakeRequest(pool)
+			getFromPoolAndMakeRequest(newPool)
 		}()
 	}
 	waitGroupBench.Wait()
