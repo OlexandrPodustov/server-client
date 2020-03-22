@@ -2,57 +2,51 @@ package pool
 
 import (
 	"errors"
+	"fmt"
+	"log"
 )
 
-const TimeLayout string = "2006/01/02 15:04:05"
-
-var (
-	newPoolError   = errors.New("invalid capasity settings. capasity must be greater than 0")
-	getFromPoolErr = errors.New("Can't get interface from pool, because it's closed")
-)
-
-type Factory func() interface{}
+type factory func() interface{}
 
 type Pool struct {
-	storage      chan interface{}
-	fact_in_pool Factory
+	storage chan interface{}
 }
 
-func NewPool(capacity int, factory Factory) (*Pool, error) {
+func New(capacity int, f factory) (*Pool, error) {
 	if capacity <= 0 {
-		return nil, newPoolError
+		return nil, fmt.Errorf("capacity must be greater than 0, actual value: %v", capacity)
 	}
 
-	np := &Pool{
-		storage:      make(chan interface{}, capacity),
-		fact_in_pool: factory,
+	np := Pool{
+		storage: make(chan interface{}, capacity),
 	}
 
 	for i := 0; i < capacity; i++ {
-		inter := factory()
+		inter := f()
 		np.storage <- inter
 	}
 
-	return np, nil
+	return &np, nil
 }
 
 func (cp *Pool) Get() (interface{}, error) {
 	channelInstances := cp.storage
 	if channelInstances == nil {
-		return nil, getFromPoolErr
+		return nil, errors.New("failed to get interface from pool, storage is not initialized")
 	}
 
-	select {
-	case inst := <-channelInstances:
-		if inst == nil {
-			return nil, getFromPoolErr
-		}
-		return inst, nil
+	inst := <-channelInstances
+	if inst == nil {
+		return nil, errors.New("failed to get interface from pool, instance is nil")
 	}
+
+	return inst, nil
 }
 
 func (cp *Pool) Put(instance interface{}) {
 	select {
 	case cp.storage <- instance:
+	default:
+		log.Fatal("failed to put resource back into the pool")
 	}
 }
