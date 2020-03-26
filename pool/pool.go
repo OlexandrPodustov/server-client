@@ -32,12 +32,12 @@ func New(capacity int, f factory) (*Pool, error) {
 func (cp *Pool) Get() (interface{}, error) {
 	channelInstances := cp.storage
 	if channelInstances == nil {
-		return nil, errors.New("failed to get interface from pool, storage is not initialized")
+		return nil, errors.New("get interface from pool, storage is not initialized")
 	}
 
 	inst := <-channelInstances
 	if inst == nil {
-		return nil, errors.New("failed to get interface from pool, instance is nil")
+		return nil, errors.New("get interface from pool, instance is nil")
 	}
 
 	return inst, nil
@@ -47,6 +47,6 @@ func (cp *Pool) Put(instance interface{}) {
 	select {
 	case cp.storage <- instance:
 	default:
-		log.Fatal("failed to put resource back into the pool")
+		log.Fatal("put resource back into the pool")
 	}
 }
